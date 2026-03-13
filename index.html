@@ -1,0 +1,2283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kisima Diagnostic & Treatment Centre | Ongata Rongai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   DESIGN SYSTEM — BLUE × WHITE THEME
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+:root {
+  --sky:       #e8f4ff;
+  --skysoft:   #f0f8ff;
+  --white:     #ffffff;
+  --ice:       #daeeff;
+
+  --blue-900:  #03111e;
+  --blue-800:  #052238;
+  --blue-700:  #083352;
+  --blue-600:  #0b4a75;
+  --blue-500:  #1268a1;
+  --blue-400:  #1a82c4;
+  --blue-300:  #3aa0e0;
+  --blue-200:  #7bc3f0;
+  --blue-100:  #b8dff8;
+  --blue-50:   #e0f2fe;
+
+  --accent:    #00c2ff;
+  --accent2:   #0097d6;
+  --gold:      #c9a96e;
+
+  --glass-w:       rgba(255,255,255,0.18);
+  --glass-w-str:   rgba(255,255,255,0.30);
+  --glass-b:       rgba(255,255,255,0.10);
+  --border-w:      rgba(255,255,255,0.35);
+  --border-b:      rgba(18,104,161,0.25);
+
+  --text-on-dark:  rgba(232,244,255,0.92);
+  --muted-on-dark: rgba(180,216,248,0.60);
+  --text-on-light: #083352;
+  --muted-on-light: #4a7fa8;
+
+  --danger: #e54545;
+  --green:  #22c55e;
+
+  --radius: 18px;
+  --radius-sm: 10px;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--blue-800);
+  color: var(--text-on-dark);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━
+   BACKGROUND CANVAS
+   ━━━━━━━━━━━━━━━━━━━━━━━━ */
+.scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background: linear-gradient(160deg, var(--blue-900) 0%, var(--blue-800) 40%, #062840 70%, #031725 100%);
+}
+
+/* large bokeh orbs */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.55;
+}
+.orb-1 { width:700px; height:700px; background: radial-gradient(circle, #1268a1 0%, transparent 70%); top:-180px; left:-180px; animation: float1 20s ease-in-out infinite alternate; }
+.orb-2 { width:500px; height:500px; background: radial-gradient(circle, #00c2ff 0%, transparent 70%); bottom:-100px; right:-100px; animation: float2 25s ease-in-out infinite alternate; opacity:0.35; }
+.orb-3 { width:400px; height:400px; background: radial-gradient(circle, #0b4a75 0%, transparent 70%); top:50%; left:55%; animation: float3 30s ease-in-out infinite alternate; }
+.orb-4 { width:260px; height:260px; background: radial-gradient(circle, #00c2ff 0%, transparent 70%); top:20%; right:10%; animation: float1 18s 4s ease-in-out infinite alternate; opacity:0.25; }
+
+@keyframes float1 { to { transform: translate(60px, 80px); } }
+@keyframes float2 { to { transform: translate(-80px, -60px); } }
+@keyframes float3 { to { transform: translate(50px, -90px); } }
+
+/* subtle grid */
+.grid-lines {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(0,194,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,194,255,0.04) 1px, transparent 1px);
+  background-size: 72px 72px;
+}
+
+/* diagonal light streak */
+.streak {
+  position: fixed;
+  top: -20%;
+  left: 30%;
+  width: 2px;
+  height: 160%;
+  background: linear-gradient(to bottom, transparent, rgba(0,194,255,0.06), transparent);
+  transform: rotate(-20deg);
+  pointer-events: none;
+  z-index: 0;
+}
+.streak-2 { left: 60%; opacity:.5; }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━
+   TOPBAR
+   ━━━━━━━━━━━━━━━━━━━━━━━━ */
+.topbar {
+  position: relative;
+  z-index: 50;
+  background: rgba(0,0,0,0.35);
+  border-bottom: 1px solid rgba(0,194,255,0.15);
+  backdrop-filter: blur(20px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 52px;
+  font-size: 0.71rem;
+  letter-spacing: 0.1em;
+  color: var(--muted-on-dark);
+}
+
+.pulse-dot {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 0 rgba(0,194,255,0.6);
+  animation: ring 2s infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+@keyframes ring {
+  0%  { box-shadow: 0 0 0 0 rgba(0,194,255,0.6); }
+  70% { box-shadow: 0 0 0 8px rgba(0,194,255,0); }
+  100%{ box-shadow: 0 0 0 0 rgba(0,194,255,0); }
+}
+
+.topbar-right {
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━
+   HEADER
+   ━━━━━━━━━━━━━━━━━━━━━━━━ */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(5,34,56,0.72);
+  backdrop-filter: blur(28px) saturate(180%);
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+  padding: 0 52px;
+  box-shadow: 0 4px 40px rgba(0,0,0,0.3);
+}
+
+.hdr {
+  max-width: 1320px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 70px;
+  gap: 20px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.logo-hex {
+  width: 46px; height: 46px;
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-hex::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--accent), var(--blue-400));
+  clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+}
+
+.logo-hex svg {
+  position: relative;
+  z-index: 1;
+  width: 22px; height: 22px;
+  fill: white;
+}
+
+.logo-words { line-height: 1; }
+.logo-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: white;
+  letter-spacing: 0.01em;
+  display: block;
+}
+.logo-sub {
+  font-size: 0.63rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+  margin-top: 2px;
+  display: block;
+}
+
+nav {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  flex: 1;
+  justify-content: center;
+}
+
+.nb {
+  background: none;
+  border: none;
+  color: rgba(180,216,248,0.70);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.80rem;
+  font-weight: 500;
+  padding: 8px 13px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+.nb:hover { color: white; background: rgba(255,255,255,0.08); }
+.nb.on {
+  color: white;
+  background: rgba(0,194,255,0.15);
+  border: 1px solid rgba(0,194,255,0.25);
+}
+
+.btn-emg {
+  background: linear-gradient(135deg, #c0392b, #e54545);
+  color: white;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 10px 22px;
+  border-radius: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s;
+  box-shadow: 0 0 24px rgba(229,69,69,0.35);
+}
+.btn-emg:hover { transform: translateY(-2px); box-shadow: 0 4px 28px rgba(229,69,69,0.55); }
+
+.ham {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+}
+.ham span { display:block; width:24px; height:2px; background: var(--accent); border-radius:2px; transition:all .3s; }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━
+   PAGES
+   ━━━━━━━━━━━━━━━━━━━━━━━━ */
+.page { display: none; position: relative; z-index: 10; }
+.page.on {
+  display: block;
+  animation: arrive 0.5s cubic-bezier(0.22,1,0.36,1);
+}
+@keyframes arrive {
+  from { opacity:0; transform: translateY(20px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━
+   GLASS VARIANTS
+   ━━━━━━━━━━━━━━━━━━━━━━━━ */
+.g1 {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.13);
+  backdrop-filter: blur(20px) saturate(160%);
+}
+.g2 {
+  background: rgba(255,255,255,0.13);
+  border: 1px solid rgba(255,255,255,0.22);
+  backdrop-filter: blur(30px) saturate(200%);
+}
+.g-blue {
+  background: rgba(18,104,161,0.18);
+  border: 1px solid rgba(0,194,255,0.20);
+  backdrop-filter: blur(20px);
+}
+.g-white {
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(18,104,161,0.12);
+  color: var(--text-on-light);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━
+   WRAP / SECTION
+   ━━━━━━━━━━━━━━━━━━━━━━━━ */
+.wrap { max-width: 1320px; margin: 0 auto; padding: 0 52px; }
+.sec  { padding: 88px 52px; }
+
+.sec-tag {
+  font-size: 0.67rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sec-tag::before {
+  content: '';
+  display: inline-block;
+  width: 28px;
+  height: 1px;
+  background: var(--accent);
+}
+
+.sec-h {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  font-weight: 400;
+  color: white;
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  margin-bottom: 14px;
+}
+
+.sec-h em { font-style: italic; color: var(--accent); }
+
+.sec-lead {
+  color: var(--muted-on-dark);
+  max-width: 580px;
+  line-height: 1.8;
+  margin-bottom: 52px;
+  font-size: 0.95rem;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━
+   HERO
+   ━━━━━━━━━━━━━━━━━━━━━━━━ */
+.hero {
+  min-height: 95vh;
+  display: flex;
+  align-items: center;
+  padding: 100px 52px 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* big decorative cross */
+.hero-cross {
+  position: absolute;
+  right: -60px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 480px;
+  height: 480px;
+  opacity: 0.04;
+  pointer-events: none;
+}
+.hero-cross::before, .hero-cross::after {
+  content: '';
+  position: absolute;
+  background: white;
+  border-radius: 4px;
+}
+.hero-cross::before { width: 100%; height: 30%; top: 35%; left: 0; }
+.hero-cross::after  { width: 30%; height: 100%; top: 0; left: 35%; }
+
+.hero-inner {
+  max-width: 1320px;
+  margin: 0 auto;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 440px;
+  gap: 64px;
+  align-items: center;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0,194,255,0.10);
+  border: 1px solid rgba(0,194,255,0.28);
+  border-radius: 100px;
+  padding: 7px 18px;
+  font-size: 0.70rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 28px;
+}
+
+.hero-h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(3rem, 5.5vw, 4.8rem);
+  font-weight: 300;
+  color: white;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 26px;
+}
+.hero-h1 .ital { font-style: italic; color: var(--accent); font-weight: 400; }
+.hero-h1 .bold { font-weight: 700; }
+
+.hero-p {
+  color: var(--muted-on-dark);
+  font-size: 1.02rem;
+  line-height: 1.82;
+  max-width: 540px;
+  margin-bottom: 46px;
+}
+
+.hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--blue-400));
+  color: var(--blue-900);
+  border: none;
+  padding: 14px 34px;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow: 0 4px 28px rgba(0,194,255,0.35);
+  transition: all 0.25s;
+}
+.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 36px rgba(0,194,255,0.5); filter: brightness(1.06); }
+
+.btn-outline {
+  background: transparent;
+  color: white;
+  border: 1px solid rgba(255,255,255,0.28);
+  padding: 14px 34px;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.btn-outline:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.45); }
+
+/* HERO CARD */
+.hero-card {
+  border-radius: var(--radius);
+  padding: 36px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, rgba(0,194,255,0.18), rgba(18,104,161,0.08));
+  pointer-events: none;
+}
+
+.card-label {
+  font-size: 0.63rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 24px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+}
+
+.info-row { display: flex; flex-direction: column; gap: 0; }
+
+.info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.info-item:last-child { border-bottom: none; }
+
+.i-ico {
+  width: 40px; height: 40px;
+  border-radius: 11px;
+  background: rgba(0,194,255,0.12);
+  border: 1px solid rgba(0,194,255,0.22);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.i-ico svg { width:18px; height:18px; fill: var(--accent); }
+
+.i-lbl {
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted-on-dark);
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+.i-val { color: white; font-size: 0.90rem; font-weight: 400; line-height: 1.4; }
+.i-val strong { font-size: 1.05rem; }
+
+/* stat strip inside hero card */
+.stat-strip {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 1px;
+  margin-top: 24px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.ss-cell {
+  background: rgba(0,0,0,0.25);
+  padding: 16px 10px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+.ss-n {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.9rem;
+  font-weight: 600;
+  color: var(--accent);
+  display: block;
+  line-height: 1;
+}
+.ss-l {
+  font-size: 0.62rem;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--muted-on-dark);
+  margin-top: 4px;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━
+   SERVICE CARDS
+   ━━━━━━━━━━━━━━━━━━━━━━━━ */
+.svc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.sc {
+  border-radius: var(--radius);
+  padding: 30px 26px;
+  cursor: pointer;
+  transition: all 0.32s cubic-bezier(0.22,1,0.36,1);
+  position: relative;
+  overflow: hidden;
+}
+
+.sc::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, rgba(0,194,255,0.10), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.sc:hover { transform: translateY(-7px); border-color: rgba(0,194,255,0.35); box-shadow: 0 20px 60px rgba(0,0,0,0.35), 0 0 0 1px rgba(0,194,255,0.15); }
+.sc:hover::after { opacity: 1; }
+
+.sc.wide { grid-column: span 2; }
+
+.sc-ico {
+  width: 52px; height: 52px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 20px;
+  transition: transform 0.3s;
+}
+.sc:hover .sc-ico { transform: scale(1.1); }
+.ic-a { background: rgba(0,194,255,0.12); border: 1px solid rgba(0,194,255,0.25); }
+.ic-a svg { fill: var(--accent); }
+.ic-b { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.22); }
+.ic-b svg { fill: white; }
+.ic-r { background: rgba(229,69,69,0.12); border: 1px solid rgba(229,69,69,0.25); }
+.ic-r svg { fill: #f87171; }
+.ic-g { background: rgba(34,197,94,0.10); border: 1px solid rgba(34,197,94,0.22); }
+.ic-g svg { fill: #4ade80; }
+.sc-ico svg { width: 24px; height: 24px; }
+
+.sc h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.22rem;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+.sc p { font-size: 0.83rem; color: var(--muted-on-dark); line-height: 1.7; }
+.sc-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: all 0.25s;
+}
+.sc:hover .sc-more { opacity: 1; transform: translateX(0); }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━
+   WHITE CARD SECTION (alt bg)
+   ━━━━━━━━━━━━━━━━━━━━━━━━ */
+.white-section {
+  padding: 88px 52px;
+  background: linear-gradient(180deg, var(--skysoft) 0%, var(--sky) 100%);
+  position: relative;
+  z-index: 10;
+}
+.white-section .sec-tag { color: var(--blue-500); }
+.white-section .sec-tag::before { background: var(--blue-500); }
+.white-section .sec-h { color: var(--blue-900); }
+.white-section .sec-lead { color: var(--muted-on-light); }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━
+   LAB CARDS
+   ━━━━━━━━━━━━━━━━━━━━━━━━ */
+.lab-grid {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 12px;
+  margin-bottom: 36px;
+}
+
+.lc {
+  background: white;
+  border: 1px solid rgba(18,104,161,0.12);
+  border-radius: 12px;
+  padding: 20px 16px;
+  box-shadow: 0 2px 12px rgba(18,104,161,0.06);
+  transition: all 0.25s;
+}
+.lc:hover { transform: translateY(-4px); box-shadow: 0 8px 28px rgba(18,104,161,0.14); border-color: var(--blue-400); }
+
+.lc h4 { font-size: 0.83rem; font-weight: 700; color: var(--blue-900); margin-bottom: 5px; }
+.lc p  { font-size: 0.74rem; color: var(--muted-on-light); line-height: 1.6; }
+
+.lt {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 2px 10px;
+  border-radius: 100px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.lt-r { background: #eff6ff; color: var(--blue-500); border: 1px solid var(--blue-100); }
+.lt-g { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+.lt-o { background: #fefce8; color: #a16207; border: 1px solid #fde68a; }
+.lt-e { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━
+   SURGERY CARDS
+   ━━━━━━━━━━━━━━━━━━━━━━━━ */
+.surg-grid {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 14px;
+}
+
+.surg-c {
+  background: white;
+  border: 1px solid rgba(18,104,161,0.10);
+  border-radius: 14px;
+  padding: 26px 22px;
+  box-shadow: 0 2px 16px rgba(18,104,161,0.07);
+  transition: all 0.28s;
+}
+.surg-c:hover { transform: translateY(-5px); box-shadow: 0 12px 36px rgba(18,104,161,0.15); border-color: var(--blue-400); }
+
+.surg-c h4 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--blue-900);
+  margin-bottom: 7px;
+}
+.surg-c p { font-size: 0.80rem; color: var(--muted-on-light); line-height: 1.65; }
+
+.sb {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 3px 12px;
+  border-radius: 100px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.sb-m { background: #eff6ff; color: var(--blue-500); border: 1px solid var(--blue-100); }
+.sb-M { background: #fefce8; color: #a16207; border: 1px solid #fde68a; }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━
+   PHARMACY TABLE
+   ━━━━━━━━━━━━━━━━━━━━━━━━ */
+.tbl-wrap {
+  background: white;
+  border: 1px solid rgba(18,104,161,0.12);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(18,104,161,0.12);
+}
+
+.tbl-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 26px;
+  background: linear-gradient(135deg, var(--blue-700), var(--blue-600));
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.tbl-top h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: white;
+}
+
+.tbl-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.fbtn {
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.20);
+  color: rgba(255,255,255,0.75);
+  padding: 6px 14px;
+  border-radius: 100px;
+  font-size: 0.73rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.fbtn:hover, .fbtn.on {
+  background: white;
+  color: var(--blue-700);
+  border-color: white;
+}
+
+.dsearch {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 8px;
+  color: white;
+  padding: 8px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.83rem;
+  outline: none;
+  width: 200px;
+  transition: all 0.2s;
+}
+.dsearch:focus { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.5); }
+.dsearch::placeholder { color: rgba(255,255,255,0.45); }
+
+table { width: 100%; border-collapse: collapse; }
+
+thead th {
+  padding: 11px 20px;
+  text-align: left;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-on-light);
+  background: var(--sky);
+  border-bottom: 1px solid var(--ice);
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--ice);
+  transition: background 0.15s;
+}
+tbody tr:hover { background: #f0f8ff; }
+tbody td { padding: 12px 20px; font-size: 0.84rem; color: var(--text-on-light); }
+tbody td strong { color: var(--blue-800); }
+
+.pill { padding: 2px 10px; border-radius: 100px; font-size: 0.63rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.pi { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+.pr { background: #eff6ff; color: var(--blue-500); border: 1px solid var(--blue-100); }
+.pl { background: #fefce8; color: #a16207; border: 1px solid #fde68a; }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━
+   APPOINTMENT / CONTACT FORM
+   ━━━━━━━━━━━━━━━━━━━━━━━━ */
+.form-shell {
+  border-radius: 18px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  box-shadow: 0 20px 80px rgba(0,0,0,0.35);
+}
+
+.form-left {
+  background: rgba(255,255,255,0.90);
+  padding: 48px;
+}
+.form-right {
+  background: linear-gradient(160deg, var(--blue-700), var(--blue-800));
+  padding: 48px 38px;
+  border-left: 1px solid rgba(255,255,255,0.10);
+}
+
+.fg { margin-bottom: 18px; }
+.fg label {
+  display: block;
+  font-size: 0.69rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--blue-600);
+  margin-bottom: 7px;
+}
+.fg input, .fg select, .fg textarea {
+  width: 100%;
+  background: white;
+  border: 1.5px solid var(--ice);
+  border-radius: 10px;
+  color: var(--blue-900);
+  padding: 12px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  appearance: none;
+  box-shadow: 0 1px 4px rgba(18,104,161,0.06);
+}
+.fg input:focus, .fg select:focus, .fg textarea:focus {
+  border-color: var(--blue-400);
+  box-shadow: 0 0 0 3px rgba(26,130,196,0.12);
+}
+.fg input::placeholder, .fg textarea::placeholder { color: #9ab8cc; }
+.fg select option { background: white; color: var(--blue-900); }
+.fg textarea { resize: vertical; min-height: 100px; }
+
+.f2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+.btn-form {
+  width: 100%;
+  background: linear-gradient(135deg, var(--blue-500), var(--blue-400));
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.25s;
+  box-shadow: 0 4px 20px rgba(18,104,161,0.3);
+  margin-top: 6px;
+}
+.btn-form:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(18,104,161,0.4); }
+
+.ri-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 24px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+.ri-row {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.ri-row:last-of-type { border-bottom: none; margin-bottom: 0; }
+.ri-l { font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(180,216,248,0.60); font-weight: 600; margin-bottom: 4px; }
+.ri-v { color: white; font-size: 0.90rem; line-height: 1.5; }
+
+.open-pill {
+  background: rgba(34,197,94,0.12);
+  border: 1px solid rgba(34,197,94,0.22);
+  color: var(--green);
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+  margin-top: 20px;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━
+   ABOUT
+   ━━━━━━━━━━━━━━━━━━━━━━━━ */
+.about-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 52px;
+  align-items: start;
+}
+
+.feat {
+  display: flex;
+  gap: 18px;
+  padding: 20px;
+  border-radius: 12px;
+  transition: all 0.25s;
+  margin-bottom: 10px;
+}
+.feat:hover { background: rgba(0,194,255,0.06); }
+
+.fn {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--accent);
+  opacity: 0.35;
+  line-height: 1;
+  flex-shrink: 0;
+  width: 44px;
+}
+.ft { font-weight: 700; color: white; font-size: 0.92rem; margin-bottom: 4px; }
+.fd { font-size: 0.82rem; color: var(--muted-on-dark); line-height: 1.65; }
+
+.level-display {
+  background: linear-gradient(135deg, rgba(0,194,255,0.12), rgba(18,104,161,0.12));
+  border: 1px solid rgba(0,194,255,0.22);
+  border-radius: 20px;
+  padding: 52px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.level-display::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(135deg, rgba(0,194,255,0.3), transparent, rgba(18,104,161,0.3));
+  border-radius: 21px;
+  z-index: -1;
+}
+.lvl-n {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 8rem;
+  font-weight: 300;
+  color: var(--accent);
+  line-height: 1;
+  display: block;
+  text-shadow: 0 0 80px rgba(0,194,255,0.3);
+}
+.lvl-t { font-size: 0.70rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted-on-dark); margin-top: 8px; }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━
+   EMERGENCY PAGE
+   ━━━━━━━━━━━━━━━━━━━━━━━━ */
+.emg-banner {
+  background: linear-gradient(135deg, rgba(180,30,30,0.18), rgba(229,69,69,0.10));
+  border: 1px solid rgba(229,69,69,0.25);
+  border-radius: 20px;
+  padding: 56px;
+  text-align: center;
+  margin-bottom: 52px;
+  position: relative;
+  overflow: hidden;
+}
+.emg-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(229,69,69,0.12) 0%, transparent 70%);
+  animation: rpulse 3s ease-in-out infinite;
+}
+@keyframes rpulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+.emg-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(3rem, 8vw, 5.5rem);
+  font-weight: 700;
+  color: white;
+  letter-spacing: 0.06em;
+  display: block;
+  line-height: 1;
+  margin: 14px 0;
+  position: relative;
+  text-shadow: 0 0 60px rgba(229,69,69,0.4);
+}
+.emg-lbl { font-size: 0.68rem; letter-spacing: 0.22em; text-transform: uppercase; color: #f87171; font-weight: 700; }
+
+.emg-steps {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 14px;
+  margin-bottom: 48px;
+}
+.emg-step {
+  border-radius: 14px;
+  padding: 26px 20px;
+  text-align: center;
+}
+.es-n {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.8rem;
+  font-weight: 600;
+  color: var(--accent);
+  line-height: 1;
+}
+.es-t { font-size: 0.82rem; font-weight: 700; color: white; margin-top: 8px; }
+.es-d { font-size: 0.75rem; color: var(--muted-on-dark); margin-top: 4px; line-height: 1.6; }
+
+.emg-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+.emg-c { border-radius: 14px; padding: 28px 24px; }
+.emg-c h4 { font-family:'Cormorant Garamond',serif; font-size:1.1rem; font-weight:600; color:white; margin-bottom:8px; }
+.emg-c p  { font-size:0.82rem; color:var(--muted-on-dark); line-height:1.7; }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━
+   DRAWER
+   ━━━━━━━━━━━━━━━━━━━━━━━━ */
+.ov {
+  position: fixed; inset: 0;
+  background: rgba(3,17,30,0.75);
+  backdrop-filter: blur(10px);
+  z-index: 300;
+  display: none;
+}
+.ov.open { display: flex; align-items: flex-start; justify-content: flex-end; }
+
+.drawer {
+  width: 490px;
+  height: 100vh;
+  background: linear-gradient(180deg, var(--blue-800), var(--blue-900));
+  border-left: 1px solid rgba(0,194,255,0.18);
+  overflow-y: auto;
+  animation: din 0.36s cubic-bezier(0.22,1,0.36,1);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,194,255,0.3) transparent;
+}
+@keyframes din { from { transform: translateX(60px); opacity:0; } to { transform: translateX(0); opacity:1; } }
+
+.dh {
+  padding: 36px 36px 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  position: sticky;
+  top: 0;
+  background: rgba(5,34,56,0.95);
+  backdrop-filter: blur(20px);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.dh h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.55rem;
+  font-weight: 500;
+  color: white;
+  line-height: 1.15;
+}
+.dh .dsub { font-size: 0.72rem; color: var(--accent); letter-spacing: 0.10em; text-transform: uppercase; font-weight: 600; margin-top: 4px; }
+
+.cx {
+  width: 36px; height: 36px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: white;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.cx:hover { background: rgba(255,255,255,0.14); }
+
+.db { padding: 28px 36px 56px; }
+
+.ds { margin-bottom: 26px; }
+.ds h4 {
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.ds p { font-size: 0.87rem; color: var(--muted-on-dark); line-height: 1.78; }
+
+.dl { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+.dl li {
+  font-size: 0.84rem;
+  color: var(--text-on-dark);
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.dl li::before {
+  content: '';
+  width: 6px; height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 6px rgba(0,194,255,0.5);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━
+   TOAST
+   ━━━━━━━━━━━━━━━━━━━━━━━━ */
+.toast {
+  position: fixed;
+  bottom: 28px; right: 28px;
+  z-index: 500;
+  padding: 18px 24px;
+  border-radius: 14px;
+  border-left: 3px solid var(--accent);
+  background: rgba(5,34,56,0.96);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255,255,255,0.10);
+  border-right: 1px solid rgba(255,255,255,0.10);
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  min-width: 300px;
+  transform: translateY(90px);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.22,1,0.36,1);
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast strong { display: block; color: white; font-size: 0.88rem; margin-bottom: 2px; }
+.toast span { font-size: 0.79rem; color: var(--muted-on-dark); }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━
+   FOOTER
+   ━━━━━━━━━━━━━━━━━━━━━━━━ */
+footer {
+  position: relative;
+  z-index: 10;
+  background: var(--blue-900);
+  border-top: 1px solid rgba(0,194,255,0.12);
+  padding: 72px 52px 32px;
+}
+
+.ft-grid {
+  max-width: 1320px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 56px;
+  margin-bottom: 56px;
+}
+
+.ft-brand p {
+  font-size: 0.84rem;
+  color: var(--muted-on-dark);
+  line-height: 1.78;
+  margin-top: 18px;
+  max-width: 300px;
+}
+
+.ft-col h4 {
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+.ft-col button, .ft-col a {
+  display: block;
+  background: none;
+  border: none;
+  color: var(--muted-on-dark);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.84rem;
+  text-decoration: none;
+  cursor: pointer;
+  padding: 4px 0;
+  text-align: left;
+  transition: color 0.2s;
+}
+.ft-col button:hover, .ft-col a:hover { color: white; }
+
+.ft-bottom {
+  max-width: 1320px;
+  margin: 0 auto;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  padding-top: 26px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.76rem;
+  color: var(--muted-on-dark);
+}
+.ft-bottom .ac { color: var(--accent); }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━
+   CONTACT PAGE SPECIAL
+   ━━━━━━━━━━━━━━━━━━━━━━━━ */
+.contact-hero {
+  background: linear-gradient(135deg, var(--blue-700), var(--blue-800));
+  border-radius: 20px;
+  padding: 52px;
+  margin-bottom: 48px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 32px;
+  align-items: center;
+  border: 1px solid rgba(0,194,255,0.15);
+  box-shadow: 0 12px 60px rgba(0,0,0,0.4);
+}
+.ch-item { text-align: center; }
+.ch-ico {
+  width: 56px; height: 56px;
+  background: rgba(0,194,255,0.15);
+  border: 1px solid rgba(0,194,255,0.3);
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 14px;
+}
+.ch-ico svg { width:26px; height:26px; fill: var(--accent); }
+.ch-lbl { font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted-on-dark); font-weight: 600; margin-bottom: 6px; }
+.ch-val { color: white; font-size: 0.95rem; font-weight: 500; line-height: 1.5; }
+.ch-val.big { font-size: 1.3rem; font-weight: 700; color: var(--accent); }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━
+   RESPONSIVE
+   ━━━━━━━━━━━━━━━━━━━━━━━━ */
+@media (max-width: 1100px) {
+  .svc-grid { grid-template-columns: repeat(2,1fr); }
+  .sc.wide { grid-column: span 1; }
+  .lab-grid { grid-template-columns: repeat(2,1fr); }
+  .hero-inner { grid-template-columns: 1fr; }
+  #hero-card-col { display: none; }
+  .ft-grid { grid-template-columns: 1fr 1fr; gap: 36px; }
+  .form-shell { grid-template-columns: 1fr; }
+  .form-right { border-left: none; border-top: 1px solid rgba(255,255,255,0.10); }
+}
+@media (max-width: 768px) {
+  header { padding: 0 20px; }
+  nav { display: none; }
+  nav.open {
+    display: flex; flex-direction: column;
+    position: absolute; top: 70px; left: 0; right: 0;
+    background: rgba(5,34,56,0.98);
+    backdrop-filter: blur(24px);
+    padding: 16px;
+    border-bottom: 1px solid rgba(0,194,255,0.15);
+    z-index: 200;
+  }
+  .ham { display: flex; }
+  .topbar, .white-section, .sec { padding-left: 20px; padding-right: 20px; }
+  .hero { padding: 72px 20px 56px; min-height: auto; }
+  .svc-grid { grid-template-columns: 1fr; }
+  .lab-grid { grid-template-columns: 1fr 1fr; }
+  .emg-grid { grid-template-columns: 1fr; }
+  .emg-steps { grid-template-columns: repeat(2,1fr); }
+  .about-2col { grid-template-columns: 1fr; }
+  .surg-grid { grid-template-columns: 1fr; }
+  .ft-grid { grid-template-columns: 1fr; gap: 28px; }
+  .ft-bottom { flex-direction: column; gap: 8px; text-align: center; }
+  .drawer { width: 100%; }
+  .contact-hero { grid-template-columns: 1fr; }
+  .f2 { grid-template-columns: 1fr; }
+  .form-left { padding: 28px 20px; }
+  .form-right { padding: 32px 24px; }
+  .wrap { padding: 0 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- SCENE -->
+<div class="scene">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+</div>
+<div class="grid-lines"></div>
+<div class="streak"></div>
+<div class="streak streak-2"></div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <strong id="tT">Done</strong>
+  <span id="tM">Your request was received.</span>
+</div>
+
+<!-- DRAWER -->
+<div class="ov" id="ov" onclick="closeOv(event)">
+  <div class="drawer" id="drawer">
+    <div class="dh">
+      <div>
+        <h2 id="dTitle">Service</h2>
+        <div class="dsub" id="dSub">Kisima Diagnostic & Treatment Centre</div>
+      </div>
+      <button class="cx" onclick="closeDr()">&#x2715;</button>
+    </div>
+    <div class="db" id="dBody"></div>
+  </div>
+</div>
+
+<!-- ─────────── TOPBAR ─────────── -->
+<div class="topbar">
+  <span><span class="pulse-dot"></span>Open Now &mdash; 24 Hours, 365 Days a Year &nbsp;|&nbsp; Ongata Rongai, Kajiado County</span>
+  <span class="topbar-right">Level 3A Certified Facility</span>
+</div>
+
+<!-- ─────────── HEADER ─────────── -->
+<header>
+  <div class="hdr">
+    <div class="logo" onclick="go('home')">
+      <div class="logo-hex">
+        <svg viewBox="0 0 24 24"><path d="M11 2v9H2v2h9v9h2v-9h9v-2h-9V2z"/></svg>
+      </div>
+      <div class="logo-words">
+        <span class="logo-name">Kisima Diagnostic &amp; Treatment Centre</span>
+        <span class="logo-sub">Primary Healthcare &nbsp;|&nbsp; Level 3A</span>
+      </div>
+    </div>
+
+    <nav id="nav">
+      <button class="nb on"  onclick="go('home')">Home</button>
+      <button class="nb"     onclick="go('services')">Services</button>
+      <button class="nb"     onclick="go('surgical')">Surgery</button>
+      <button class="nb"     onclick="go('laboratory')">Laboratory</button>
+      <button class="nb"     onclick="go('pharmacy')">Pharmacy</button>
+      <button class="nb"     onclick="go('about')">About</button>
+      <button class="nb"     onclick="go('appointment')">Appointment</button>
+      <button class="nb"     onclick="go('contact')">Contact</button>
+    </nav>
+
+    <button class="btn-emg" onclick="go('emergency')">Emergency</button>
+    <button class="ham" id="ham" onclick="toggleNav()">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════
+     HOME
+══════════════════════════════════════════ -->
+<div class="page on" id="page-home">
+
+  <section class="hero">
+    <div class="hero-cross"></div>
+    <div class="hero-inner">
+      <!-- LEFT -->
+      <div>
+        <div class="hero-eyebrow">
+          <span class="pulse-dot" style="width:6px;height:6px;margin:0;"></span>
+          Level 3A &mdash; Ongata Rongai, Kajiado County
+        </div>
+        <h1 class="hero-h1">
+          <span class="ital">Every Hour.</span><br>
+          <span class="bold">Every Patient.</span><br>
+          No Exceptions.
+        </h1>
+        <p class="hero-p">Kisima Diagnostic and Treatment Centre delivers the full continuum of primary, maternal, emergency, surgical, diagnostic, and specialist healthcare — 24 hours a day, 365 days a year, for every member of your family.</p>
+        <div class="hero-btns">
+          <button class="btn-primary" onclick="go('appointment')">Book Appointment</button>
+          <button class="btn-outline" onclick="go('services')">Our Services</button>
+          <button class="btn-outline" onclick="go('emergency')" style="border-color:rgba(229,69,69,0.4); color:#f87171;">Emergency</button>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div id="hero-card-col">
+        <div class="g1 hero-card" style="border-radius:var(--radius);">
+          <div class="card-label">Facility at a Glance</div>
+          <div class="info-row">
+            <div class="info-item">
+              <div class="i-ico"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>
+              <div><div class="i-lbl">Location</div><div class="i-val">Ongata Rongai, Kajiado County</div></div>
+            </div>
+            <div class="info-item">
+              <div class="i-ico"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg></div>
+              <div><div class="i-lbl">Operating Hours</div><div class="i-val">24 Hours &mdash; 365 Days a Year</div></div>
+            </div>
+            <div class="info-item">
+              <div class="i-ico"><svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg></div>
+              <div><div class="i-lbl">Phone</div><div class="i-val"><strong>0700 130 023</strong> / 0724 109 625</div></div>
+            </div>
+            <div class="info-item">
+              <div class="i-ico"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></div>
+              <div><div class="i-lbl">Email</div><div class="i-val">kisimahealthcare@gmail.com</div></div>
+            </div>
+          </div>
+          <div class="stat-strip">
+            <div class="ss-cell"><span class="ss-n">24/7</span><div class="ss-l">Always Open</div></div>
+            <div class="ss-cell"><span class="ss-n">3A</span><div class="ss-l">Level</div></div>
+            <div class="ss-cell"><span class="ss-n">12+</span><div class="ss-l">Departments</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES PREVIEW (dark glass) -->
+  <section class="sec">
+    <div class="wrap" style="padding:0;">
+      <div class="sec-tag">Core Services</div>
+      <h2 class="sec-h">Comprehensive Care,<br><em>Every Specialty.</em></h2>
+      <p class="sec-lead">From your child's immunisation to emergency surgery — Kisima is fully equipped to handle the complete spectrum of healthcare needs across every life stage.</p>
+      <div class="svc-grid">
+        <div class="g1 sc wide" onclick="openD('phc')">
+          <div class="sc-ico ic-a"><svg viewBox="0 0 24 24"><path d="M11 2v9H2v2h9v9h2v-9h9v-2h-9V2z"/></svg></div>
+          <h3>Primary Health Care</h3>
+          <p>General outpatient consultations, chronic disease management (hypertension, diabetes, asthma), preventive care, health screening, and referrals. The first point of care for all patients, 24 hours daily.</p>
+          <div class="sc-more">View details &#8594;</div>
+        </div>
+        <div class="g1 sc" onclick="openD('emergency')">
+          <div class="sc-ico ic-r"><svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg></div>
+          <h3>Emergency & Casualty</h3>
+          <p>24-hour triage, resuscitation, trauma stabilisation and acute care.</p>
+          <div class="sc-more">View details &#8594;</div>
+        </div>
+        <div class="g1 sc" onclick="openD('mch')">
+          <div class="sc-ico ic-b"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg></div>
+          <h3>MCH & Maternity</h3>
+          <p>Antenatal care, skilled birth attendance, postnatal services, immunisation, family planning.</p>
+          <div class="sc-more">View details &#8594;</div>
+        </div>
+        <div class="g1 sc" onclick="go('surgical')">
+          <div class="sc-ico ic-a"><svg viewBox="0 0 24 24"><path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"/></svg></div>
+          <h3>Surgical Services</h3>
+          <p>Minor and major surgical procedures including Caesarean section, laparotomy, appendicectomy, hernia repair, and more.</p>
+          <div class="sc-more">Full surgical suite &#8594;</div>
+        </div>
+        <div class="g1 sc" onclick="go('laboratory')">
+          <div class="sc-ico ic-b"><svg viewBox="0 0 24 24"><path d="M19.8 18.4L14 10.67V6.5l1.35-1.69c.26-.33.03-.81-.39-.81H9.04c-.42 0-.65.48-.39.81L10 6.5v4.17L4.2 18.4c-.49.66-.02 1.6.8 1.6h14c.82 0 1.29-.94.8-1.6z"/></svg></div>
+          <h3>Laboratory & Diagnostics</h3>
+          <p>Full-spectrum clinical lab: haematology, chemistry, microbiology, serology, and rapid diagnostics — 40+ tests.</p>
+          <div class="sc-more">Full lab catalogue &#8594;</div>
+        </div>
+        <div class="g1 sc" onclick="openD('inpatient')">
+          <div class="sc-ico ic-a"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg></div>
+          <h3>Inpatient Ward</h3>
+          <p>Supervised admission, 24-hour nursing, physician ward rounds, IV therapy, and discharge planning.</p>
+          <div class="sc-more">View details &#8594;</div>
+        </div>
+        <div class="g1 sc" onclick="openD('ent')">
+          <div class="sc-ico ic-b"><svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9z"/></svg></div>
+          <h3>ENT Clinic</h3>
+          <p>Ear, nose and throat assessments, ear syringing, foreign body removal, nasal procedures.</p>
+          <div class="sc-more">View details &#8594;</div>
+        </div>
+        <div class="g1 sc" onclick="openD('dental')">
+          <div class="sc-ico ic-a"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg></div>
+          <h3>Dental Services</h3>
+          <p>Extractions, fillings, scaling, polishing, abscess drainage, and preventive oral healthcare.</p>
+          <div class="sc-more">View details &#8594;</div>
+        </div>
+        <div class="g1 sc" onclick="openD('dressing')">
+          <div class="sc-ico ic-b"><svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5z"/></svg></div>
+          <h3>Dressing & Wound Care</h3>
+          <p>Sterile wound dressings, ulcer management, burns, post-surgical care, and suture removal.</p>
+          <div class="sc-more">View details &#8594;</div>
+        </div>
+        <div class="g1 sc" onclick="go('pharmacy')">
+          <div class="sc-ico ic-g"><svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.07-.44.18-.88.18-1.38C18 2.51 16.5 1 14.62 1 13.6 1 12.68 1.5 12 2.25 11.32 1.5 10.4 1 9.38 1 7.5 1 6 2.51 6 4.62c0 .5.11.94.18 1.38H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg></div>
+          <h3>Pharmacy & Dispensary</h3>
+          <p>Comprehensive formulary dispensed by qualified pharmaceutical technologists, 24 hours daily.</p>
+          <div class="sc-more">Browse formulary &#8594;</div>
+        </div>
+        <div class="g1 sc" onclick="openD('hiv')">
+          <div class="sc-ico ic-a"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></div>
+          <h3>HIV & Reproductive Health</h3>
+          <p>HIV testing, PMTCT, ART, STI management, cervical screening, PrEP, PEP, family planning.</p>
+          <div class="sc-more">View details &#8594;</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ══════════════════════════════════════════
+     SERVICES
+══════════════════════════════════════════ -->
+<div class="page" id="page-services">
+  <section class="sec">
+    <div class="wrap" style="padding:0;">
+      <div class="sec-tag">Full Directory</div>
+      <h2 class="sec-h">All Clinical <em>Services</em></h2>
+      <p class="sec-lead">Select any service to view a detailed breakdown of procedures, who it serves, and what to expect during your visit.</p>
+      <div class="svc-grid">
+        <div class="g1 sc" onclick="openD('phc')"><div class="sc-ico ic-a"><svg viewBox="0 0 24 24"><path d="M11 2v9H2v2h9v9h2v-9h9v-2h-9V2z"/></svg></div><h3>Primary Health Care</h3><p>General OPD, chronic disease management, preventive care, health education.</p><div class="sc-more">Details &#8594;</div></div>
+        <div class="g1 sc" onclick="openD('mch')"><div class="sc-ico ic-b"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg></div><h3>MCH & Maternity</h3><p>Antenatal, postnatal, delivery, immunisation, family planning.</p><div class="sc-more">Details &#8594;</div></div>
+        <div class="g1 sc" onclick="openD('emergency')"><div class="sc-ico ic-r"><svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg></div><h3>Emergency & Casualty</h3><p>24-hour triage, resuscitation, trauma, acute care stabilisation.</p><div class="sc-more">Details &#8594;</div></div>
+        <div class="g1 sc" onclick="openD('inpatient')"><div class="sc-ico ic-a"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg></div><h3>Inpatient Ward</h3><p>Admitted care, nursing, physician review, IV therapy, monitoring.</p><div class="sc-more">Details &#8594;</div></div>
+        <div class="g1 sc" onclick="go('surgical')"><div class="sc-ico ic-b"><svg viewBox="0 0 24 24"><path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"/></svg></div><h3>Surgical Services</h3><p>Minor and major surgery including Caesarean section, laparotomy, hernia repair.</p><div class="sc-more">Full page &#8594;</div></div>
+        <div class="g1 sc" onclick="go('laboratory')"><div class="sc-ico ic-a"><svg viewBox="0 0 24 24"><path d="M19.8 18.4L14 10.67V6.5l1.35-1.69c.26-.33.03-.81-.39-.81H9.04c-.42 0-.65.48-.39.81L10 6.5v4.17L4.2 18.4c-.49.66-.02 1.6.8 1.6h14c.82 0 1.29-.94.8-1.6z"/></svg></div><h3>Laboratory & Diagnostics</h3><p>Full clinical lab — haematology, chemistry, microbiology, 40+ tests.</p><div class="sc-more">Full page &#8594;</div></div>
+        <div class="g1 sc" onclick="openD('dressing')"><div class="sc-ico ic-b"><svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5z"/></svg></div><h3>Dressing & Wound Care</h3><p>Sterile dressings, ulcer care, burns, post-surgical wound management.</p><div class="sc-more">Details &#8594;</div></div>
+        <div class="g1 sc" onclick="openD('ent')"><div class="sc-ico ic-a"><svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9z"/></svg></div><h3>ENT Clinic</h3><p>Ear syringing, nasal procedures, throat assessment, foreign body removal.</p><div class="sc-more">Details &#8594;</div></div>
+        <div class="g1 sc" onclick="openD('dental')"><div class="sc-ico ic-r"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg></div><h3>Dental Services</h3><p>Extractions, fillings, scaling, abscess drainage, preventive dentistry.</p><div class="sc-more">Details &#8594;</div></div>
+        <div class="g1 sc" onclick="go('pharmacy')"><div class="sc-ico ic-g"><svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.07-.44.18-.88.18-1.38C18 2.51 16.5 1 14.62 1 13.6 1 12.68 1.5 12 2.25 11.32 1.5 10.4 1 9.38 1 7.5 1 6 2.51 6 4.62c0 .5.11.94.18 1.38H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg></div><h3>Pharmacy</h3><p>Comprehensive formulary, 24-hour prescription dispensing.</p><div class="sc-more">Browse &#8594;</div></div>
+        <div class="g1 sc" onclick="openD('hiv')"><div class="sc-ico ic-b"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></div><h3>HIV & Reproductive Health</h3><p>HTC, PMTCT, ART, STI care, cervical screening, PrEP, PEP.</p><div class="sc-more">Details &#8594;</div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SURGICAL (white bg)
+══════════════════════════════════════════ -->
+<div class="page" id="page-surgical">
+  <section class="white-section">
+    <div class="wrap" style="padding:0;">
+      <div class="sec-tag">Surgical Department</div>
+      <h2 class="sec-h" style="color:var(--blue-900);">Surgical <em style="color:var(--blue-500);">Services</em></h2>
+      <p class="sec-lead" style="margin-bottom:16px;">Kisima's surgical department handles both minor procedures under local anaesthesia and major surgical interventions in a fully equipped, sterile operative theatre. Pre-operative assessment, intra-operative monitoring, and post-operative ward care are provided within the facility.</p>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:32px; margin-bottom:52px; align-items:start;">
+        <div style="background:white; border:1px solid var(--ice); border-radius:16px; padding:32px; box-shadow:0 4px 20px rgba(18,104,161,0.08);">
+          <div style="font-size:0.62rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--blue-500); font-weight:700; margin-bottom:14px;">Theatre Capabilities</div>
+          <div style="font-size:0.84rem; color:var(--muted-on-light); line-height:1.8;">
+            <div style="padding:10px 0; border-bottom:1px solid var(--ice); display:flex; align-items:center; gap:10px;"><span style="color:var(--blue-400);">&#10003;</span> Sterile instrument sets maintained to MoH standard</div>
+            <div style="padding:10px 0; border-bottom:1px solid var(--ice); display:flex; align-items:center; gap:10px;"><span style="color:var(--blue-400);">&#10003;</span> Local and regional anaesthesia available</div>
+            <div style="padding:10px 0; border-bottom:1px solid var(--ice); display:flex; align-items:center; gap:10px;"><span style="color:var(--blue-400);">&#10003;</span> Electrosurgical unit (diathermy) on-site</div>
+            <div style="padding:10px 0; border-bottom:1px solid var(--ice); display:flex; align-items:center; gap:10px;"><span style="color:var(--blue-400);">&#10003;</span> Post-operative recovery and monitoring area</div>
+            <div style="padding:10px 0; display:flex; align-items:center; gap:10px;"><span style="color:var(--blue-400);">&#10003;</span> Referral pathway with documentation for complex cases</div>
+          </div>
+        </div>
+        <div style="background:linear-gradient(135deg,var(--blue-700),var(--blue-600)); border-radius:16px; padding:32px; color:white;">
+          <div style="font-size:0.62rem; letter-spacing:0.2em; text-transform:uppercase; color:rgba(180,216,248,0.7); font-weight:700; margin-bottom:14px;">Surgical Team</div>
+          <div style="font-size:0.9rem; line-height:1.8; color:rgba(220,235,255,0.85);">Surgical procedures are performed by qualified medical officers and surgeons. All cases are preceded by a formal pre-operative assessment. Post-operative care is managed in the inpatient ward with nursing support around the clock.</div>
+        </div>
+      </div>
+
+      <div style="font-size:0.67rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--blue-500); font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:10px;"><span style="display:inline-block; width:28px; height:1px; background:var(--blue-400);"></span>Minor Surgical Procedures</div>
+      <div class="surg-grid" style="margin-bottom:44px;">
+        <div class="surg-c"><h4>Incision & Drainage</h4><p>Surgical drainage of abscesses, boils, and fluctuant swellings under local anaesthesia with sterile technique.</p><span class="sb sb-m">Minor</span></div>
+        <div class="surg-c"><h4>Wound Closure & Suturing</h4><p>Primary repair of lacerations, layered closure, tension suturing, and debridement for traumatic wounds.</p><span class="sb sb-m">Minor</span></div>
+        <div class="surg-c"><h4>Circumcision</h4><p>Male circumcision under local anaesthesia with dorsal slit or sleeve technique. Post-operative follow-up included.</p><span class="sb sb-m">Minor</span></div>
+        <div class="surg-c"><h4>Foreign Body Removal</h4><p>Surgical extraction of embedded foreign bodies from soft tissue, ear canal, nose, and superficial ocular surface.</p><span class="sb sb-m">Minor</span></div>
+        <div class="surg-c"><h4>Excision of Lumps & Lesions</h4><p>Excision of sebaceous cysts, lipomas, fibromas, and superficial benign lesions with histology referral if indicated.</p><span class="sb sb-m">Minor</span></div>
+        <div class="surg-c"><h4>Nail Avulsion</h4><p>Ingrown toenail surgery (partial or total nail avulsion) and nail bed phenolisation to prevent recurrence.</p><span class="sb sb-m">Minor</span></div>
+        <div class="surg-c"><h4>Wound Debridement</h4><p>Surgical removal of necrotic, infected, or foreign tissue from wounds, pressure ulcers, and infected sites.</p><span class="sb sb-m">Minor</span></div>
+        <div class="surg-c"><h4>Split-Thickness Skin Grafting</h4><p>Application of split-thickness skin grafts for burns, post-excision defects, and non-healing ulcers.</p><span class="sb sb-m">Minor / Intermediate</span></div>
+      </div>
+
+      <div style="font-size:0.67rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--blue-500); font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:10px;"><span style="display:inline-block; width:28px; height:1px; background:var(--blue-400);"></span>Major Surgical Procedures</div>
+      <div class="surg-grid">
+        <div class="surg-c"><h4>Caesarean Section</h4><p>Emergency and elective CS for obstructed labour, fetal distress, cephalopelvic disproportion, placenta praevia, and repeat CS.</p><span class="sb sb-M">Major &mdash; Obstetric</span></div>
+        <div class="surg-c"><h4>Laparotomy</h4><p>Exploratory and therapeutic laparotomy for acute abdomen, peritonitis, intestinal obstruction, and abdominal trauma.</p><span class="sb sb-M">Major &mdash; Abdominal</span></div>
+        <div class="surg-c"><h4>Appendicectomy</h4><p>Open surgical removal of the appendix in acute appendicitis, perforated appendix, and appendiceal abscess.</p><span class="sb sb-M">Major &mdash; Abdominal</span></div>
+        <div class="surg-c"><h4>Hernia Repair</h4><p>Inguinal, umbilical, and femoral hernia repair with mesh reinforcement or primary tissue repair based on presentation.</p><span class="sb sb-M">Major &mdash; General</span></div>
+        <div class="surg-c"><h4>Hydrocelectomy</h4><p>Surgical correction of hydrocoele with excision and eversion of the tunica vaginalis or bottle-neck procedure.</p><span class="sb sb-M">Major &mdash; Urology</span></div>
+        <div class="surg-c"><h4>Myomectomy / Hysterectomy</h4><p>Surgical management of symptomatic uterine fibroids via open myomectomy or total abdominal hysterectomy.</p><span class="sb sb-M">Major &mdash; Gynaecological</span></div>
+        <div class="surg-c"><h4>Ectopic Pregnancy Surgery</h4><p>Emergency salpingectomy or salpingotomy for ruptured or unruptured ectopic pregnancy with haemoperitoneum management.</p><span class="sb sb-M">Major &mdash; Emergency Obstetric</span></div>
+        <div class="surg-c"><h4>Bowel Resection & Anastomosis</h4><p>Resection of non-viable bowel with primary anastomosis or stoma formation in complex obstruction and strangulation.</p><span class="sb sb-M">Major &mdash; Gastrointestinal</span></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════════════════════════════════
+     LABORATORY (white bg)
+══════════════════════════════════════════ -->
+<div class="page" id="page-laboratory">
+  <section class="white-section">
+    <div class="wrap" style="padding:0;">
+      <div class="sec-tag">Diagnostic Laboratory</div>
+      <h2 class="sec-h" style="color:var(--blue-900);">Laboratory & <em style="color:var(--blue-500);">Diagnostics</em></h2>
+      <p class="sec-lead" style="margin-bottom:44px;">Kisima's clinical laboratory operates 24 hours daily across all major pathology disciplines. Results are communicated directly to the requesting clinician for immediate clinical decision-making.</p>
+
+      <div style="font-size:0.67rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--blue-500);font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:10px;"><span style="display:inline-block;width:28px;height:1px;background:var(--blue-400);"></span>Haematology</div>
+      <div class="lab-grid" style="margin-bottom:32px;">
+        <div class="lc"><h4>Full Blood Count (FBC)</h4><p>WBC differential, RBC, Hb, haematocrit, platelets, MCV/MCH/MCHC.</p><span class="lt lt-r">Routine</span></div>
+        <div class="lc"><h4>Peripheral Blood Smear</h4><p>Microscopic examination for malaria parasites and cell morphology.</p><span class="lt lt-r">Routine</span></div>
+        <div class="lc"><h4>Blood Grouping & Typing</h4><p>ABO and Rh(D) grouping for pre-transfusion assessment.</p><span class="lt lt-g">Transfusion</span></div>
+        <div class="lc"><h4>Cross-Match</h4><p>Compatibility testing before blood transfusion.</p><span class="lt lt-g">Transfusion</span></div>
+        <div class="lc"><h4>ESR</h4><p>Erythrocyte sedimentation rate for inflammatory and infective conditions.</p><span class="lt lt-r">Routine</span></div>
+        <div class="lc"><h4>Sickling Test</h4><p>Screening for sickle cell trait and disease.</p><span class="lt lt-o">Screening</span></div>
+        <div class="lc"><h4>Reticulocyte Count</h4><p>Assessment of bone marrow erythropoietic activity in anaemia.</p><span class="lt lt-r">Specialised</span></div>
+        <div class="lc"><h4>PT / INR & APTT</h4><p>Coagulation studies for bleeding disorders and anticoagulation monitoring.</p><span class="lt lt-g">Coagulation</span></div>
+      </div>
+
+      <div style="font-size:0.67rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--blue-500);font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:10px;"><span style="display:inline-block;width:28px;height:1px;background:var(--blue-400);"></span>Clinical Chemistry</div>
+      <div class="lab-grid" style="margin-bottom:32px;">
+        <div class="lc"><h4>Fasting Blood Glucose</h4><p>Diagnostic test for diabetes mellitus and hypoglycaemia.</p><span class="lt lt-r">Routine</span></div>
+        <div class="lc"><h4>HbA1c</h4><p>3-month glycaemic control assessment for diabetic patients.</p><span class="lt lt-o">Chronic Disease</span></div>
+        <div class="lc"><h4>Urea & Electrolytes</h4><p>Na, K, Cl, HCO3, urea, creatinine — renal function panel.</p><span class="lt lt-r">Routine</span></div>
+        <div class="lc"><h4>Liver Function Tests</h4><p>ALT, AST, ALP, GGT, bilirubin (total & direct), albumin, total protein.</p><span class="lt lt-r">Routine</span></div>
+        <div class="lc"><h4>Lipid Profile</h4><p>Total cholesterol, LDL, HDL, VLDL, triglycerides.</p><span class="lt lt-o">Cardiovascular</span></div>
+        <div class="lc"><h4>Thyroid Function (TSH)</h4><p>TSH, T3, T4 for thyroid screening and monitoring.</p><span class="lt lt-r">Endocrine</span></div>
+        <div class="lc"><h4>Uric Acid</h4><p>Serum uric acid for gout and renal function assessment.</p><span class="lt lt-r">Routine</span></div>
+        <div class="lc"><h4>Amylase / Lipase</h4><p>Pancreatic enzymes for acute and chronic pancreatitis diagnosis.</p><span class="lt lt-e">Acute</span></div>
+        <div class="lc"><h4>Serum Calcium & Phosphate</h4><p>Bone metabolism and parathyroid disorder assessment.</p><span class="lt lt-r">Specialised</span></div>
+        <div class="lc"><h4>PSA</h4><p>Prostate Specific Antigen — prostate cancer screening and monitoring.</p><span class="lt lt-o">Screening</span></div>
+        <div class="lc"><h4>Beta-HCG (Pregnancy Test)</h4><p>Serum and urine quantitative and qualitative pregnancy testing.</p><span class="lt lt-r">Routine</span></div>
+        <div class="lc"><h4>Cardiac Troponin</h4><p>High-sensitivity troponin for acute myocardial infarction diagnosis.</p><span class="lt lt-e">Emergency</span></div>
+      </div>
+
+      <div style="font-size:0.67rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--blue-500);font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:10px;"><span style="display:inline-block;width:28px;height:1px;background:var(--blue-400);"></span>Microbiology & Serology</div>
+      <div class="lab-grid" style="margin-bottom:32px;">
+        <div class="lc"><h4>Urine Microscopy & Culture</h4><p>Microscopy plus bacterial culture and sensitivity from urine specimens.</p><span class="lt lt-r">Routine</span></div>
+        <div class="lc"><h4>Stool Microscopy</h4><p>Examination for intestinal parasites, ova, cysts, and occult blood.</p><span class="lt lt-r">Routine</span></div>
+        <div class="lc"><h4>High Vaginal Swab (HVS)</h4><p>Culture and sensitivity for vaginal discharge and reproductive tract infections.</p><span class="lt lt-g">Gynaecology</span></div>
+        <div class="lc"><h4>Wound Swab C&S</h4><p>Pathogen identification and antibiotic sensitivity from infected wounds.</p><span class="lt lt-g">Wound Care</span></div>
+        <div class="lc"><h4>Blood Culture</h4><p>Detection of bacteraemia and septicaemia via incubated blood cultures.</p><span class="lt lt-e">Emergency</span></div>
+        <div class="lc"><h4>Sputum AFB (TB)</h4><p>Ziehl-Neelsen staining for acid-fast bacilli in tuberculosis diagnosis.</p><span class="lt lt-o">TB Programme</span></div>
+        <div class="lc"><h4>HIV Rapid Test</h4><p>Rapid antibody test for HIV-1/2 with confirmatory testing and counselling.</p><span class="lt lt-r">Routine</span></div>
+        <div class="lc"><h4>Hepatitis B & C Screening</h4><p>HBsAg and anti-HCV serology for hepatitis infection screening.</p><span class="lt lt-o">Screening</span></div>
+        <div class="lc"><h4>VDRL / Syphilis (RPR)</h4><p>Non-treponemal test for syphilis in antenatal and STI clinics.</p><span class="lt lt-g">STI</span></div>
+        <div class="lc"><h4>H. pylori Antigen Test</h4><p>Stool antigen test for H. pylori in peptic ulcer management.</p><span class="lt lt-r">GI</span></div>
+        <div class="lc"><h4>Widal Test (Typhoid)</h4><p>Agglutination test for Salmonella typhi antibodies in enteric fever.</p><span class="lt lt-o">Infectious</span></div>
+        <div class="lc"><h4>Brucella Antibody Test</h4><p>Rose Bengal plate agglutination for brucellosis in endemic areas.</p><span class="lt lt-o">Specialised</span></div>
+      </div>
+
+      <div style="font-size:0.67rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--blue-500);font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:10px;"><span style="display:inline-block;width:28px;height:1px;background:var(--blue-400);"></span>Rapid Diagnostics & Specialised Tests</div>
+      <div class="lab-grid">
+        <div class="lc"><h4>Malaria RDT (mRDT)</h4><p>PfHRP2/pLDH antigen detection for P. falciparum and non-falciparum malaria.</p><span class="lt lt-e">Rapid Test</span></div>
+        <div class="lc"><h4>Urinalysis (Dipstick + Microscopy)</h4><p>Full dipstick (glucose, protein, nitrites, leucocytes, blood, ketones) + microscopy.</p><span class="lt lt-r">Routine</span></div>
+        <div class="lc"><h4>CD4 Count</h4><p>Immunological monitoring for HIV-positive patients on ART.</p><span class="lt lt-g">HIV Care</span></div>
+        <div class="lc"><h4>Pap Smear (Cervical Cytology)</h4><p>Cervical smear collection and preparation for cytological analysis.</p><span class="lt lt-o">Screening</span></div>
+        <div class="lc"><h4>KOH Preparation</h4><p>Microscopic detection of fungal elements in skin scrapings and discharge.</p><span class="lt lt-r">Microbiology</span></div>
+        <div class="lc"><h4>Pleural / Ascitic Fluid Analysis</h4><p>Biochemical and microscopic examination of fluid from body cavities.</p><span class="lt lt-g">Specialised</span></div>
+        <div class="lc"><h4>CSF Analysis</h4><p>Cell count, protein, glucose, India ink stain for meningitis diagnosis.</p><span class="lt lt-e">Emergency</span></div>
+        <div class="lc"><h4>Drug Sensitivity Testing (DST)</h4><p>Antibiotic sensitivity profiling to guide appropriate therapy selection.</p><span class="lt lt-o">Microbiology</span></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PHARMACY (white bg)
+══════════════════════════════════════════ -->
+<div class="page" id="page-pharmacy">
+  <section class="white-section">
+    <div class="wrap" style="padding:0;">
+      <div class="sec-tag">Dispensary</div>
+      <h2 class="sec-h" style="color:var(--blue-900);">Pharmacy & <em style="color:var(--blue-500);">Drug Formulary</em></h2>
+      <p class="sec-lead" style="margin-bottom:36px;">Kisima maintains a fully stocked dispensary operating 24 hours daily. Medications are dispensed by qualified pharmaceutical technologists per Kenya Standard Treatment Guidelines.</p>
+      <div class="tbl-wrap">
+        <div class="tbl-top">
+          <h3>Drug Formulary</h3>
+          <div class="tbl-filters">
+            <button class="fbtn on" onclick="fcat('all',this)">All</button>
+            <button class="fbtn" onclick="fcat('Antibiotic',this)">Antibiotics</button>
+            <button class="fbtn" onclick="fcat('Antimalarial',this)">Antimalarials</button>
+            <button class="fbtn" onclick="fcat('Analgesic',this)">Analgesics</button>
+            <button class="fbtn" onclick="fcat('IV',this)">IV Fluids</button>
+            <button class="fbtn" onclick="fcat('Cardiovascular',this)">Cardiac</button>
+            <input class="dsearch" type="text" placeholder="Search drug..." oninput="sdrug(this.value)" id="dsi">
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Drug Name</th><th>Category</th><th>Formulation</th><th>Route</th><th>Status</th></tr>
+          </thead>
+          <tbody id="dtbody"></tbody>
+        </table>
+      </div>
+      <p style="margin-top:12px; font-size:0.75rem; color:var(--muted-on-light);">Rx Only = valid prescription required. Stock is indicative — consult the dispensary for real-time availability.</p>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════════════════════════════════
+     ABOUT
+══════════════════════════════════════════ -->
+<div class="page" id="page-about">
+  <section class="sec">
+    <div class="wrap" style="padding:0;">
+      <div class="sec-tag">Who We Are</div>
+      <h2 class="sec-h">About <em>Kisima</em></h2>
+      <div class="about-2col">
+        <div>
+          <p style="color:var(--muted-on-dark); line-height:1.85; margin-bottom:20px;">Kisima Diagnostic and Treatment Centre is a Level 3A health facility in Ongata Rongai, Kajiado County. The centre was established to bridge the healthcare access gap in this rapidly growing community, offering a full continuum of primary, maternal, emergency, surgical, diagnostic, and specialist services to patients of all ages.</p>
+          <p style="color:var(--muted-on-dark); line-height:1.85; margin-bottom:32px;">The facility operates without interruption — 24 hours a day, 365 days a year. Clinical care adheres to Kenya Ministry of Health Standard Treatment Guidelines and Level 3 facility protocols. No patient is turned away.</p>
+          <div class="feat"><div class="fn">01</div><div><div class="ft">Always Open</div><div class="fd">No closures for weekends, public holidays, or any other day. Emergency and elective services run continuously around the clock.</div></div></div>
+          <div class="feat"><div class="fn">02</div><div><div class="ft">Level 3A Certification</div><div class="fd">Accredited under Kenya MoH framework as a comprehensive primary care facility with full inpatient, maternity, and surgical capacity.</div></div></div>
+          <div class="feat"><div class="fn">03</div><div><div class="ft">Integrated Services</div><div class="fd">Laboratory, pharmacy, surgical theatre, maternity, and outpatient services are co-located, enabling fast, coordinated patient care.</div></div></div>
+          <div class="feat"><div class="fn">04</div><div><div class="ft">Community-Rooted</div><div class="fd">Located at the heart of Ongata Rongai, serving the health needs of families across Kajiado County with dignity and professionalism.</div></div></div>
+        </div>
+        <div>
+          <div class="level-display">
+            <span class="lvl-n">3A</span>
+            <div class="lvl-t">Kenya Ministry of Health &mdash; Facility Level</div>
+          </div>
+          <div class="g2" style="margin-top:16px; border-radius:16px; padding:32px;">
+            <div class="card-label">Quick Reference</div>
+            <div class="info-item">
+              <div class="i-ico"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg></div>
+              <div><div class="i-lbl">Location</div><div class="i-val">Ongata Rongai, Kajiado County, Kenya</div></div>
+            </div>
+            <div class="info-item">
+              <div class="i-ico"><svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg></div>
+              <div><div class="i-lbl">Phone</div><div class="i-val">0700 130 023 &nbsp;|&nbsp; 0724 109 625</div></div>
+            </div>
+            <div class="info-item">
+              <div class="i-ico"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></div>
+              <div><div class="i-lbl">Email</div><div class="i-val">kisimahealthcare@gmail.com</div></div>
+            </div>
+            <div class="info-item" style="border:none;">
+              <div class="i-ico"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg></div>
+              <div><div class="i-lbl">Hours</div><div class="i-val">24 hours &mdash; 365 days per year</div></div>
+            </div>
+            <div class="open-pill">Currently Open</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════════════════════════════════
+     APPOINTMENT
+══════════════════════════════════════════ -->
+<div class="page" id="page-appointment">
+  <section class="sec">
+    <div class="wrap" style="padding:0;">
+      <div class="sec-tag">Book a Visit</div>
+      <h2 class="sec-h">Request an <em>Appointment</em></h2>
+      <p class="sec-lead" style="margin-bottom:40px;">Complete the form and our team will confirm your appointment. Walk-ins are always welcome — 24 hours a day, no booking required.</p>
+      <div class="form-shell" style="border-radius:18px;">
+        <div class="form-left">
+          <div style="font-family:'Cormorant Garamond',serif; font-size:1.5rem; font-weight:600; color:var(--blue-800); margin-bottom:28px;">Patient Information</div>
+          <div class="f2">
+            <div class="fg"><label>First Name</label><input type="text" id="a1" placeholder="John"></div>
+            <div class="fg"><label>Last Name</label><input type="text" id="a2" placeholder="Kamau"></div>
+          </div>
+          <div class="fg"><label>Phone Number</label><input type="tel" id="a3" placeholder="07XX XXX XXX"></div>
+          <div class="fg"><label>Email (optional)</label><input type="email" id="a4" placeholder="john@example.com"></div>
+          <div class="fg">
+            <label>Service / Department</label>
+            <select id="a5">
+              <option value="">Select a service</option>
+              <option>Primary Health Care (OPD)</option>
+              <option>Mother & Child Health (MCH)</option>
+              <option>Maternity / Antenatal Care</option>
+              <option>Emergency Department</option>
+              <option>Surgical Consultation</option>
+              <option>Dental Services</option>
+              <option>ENT Clinic</option>
+              <option>Dressing & Wound Care</option>
+              <option>Laboratory / Diagnostics</option>
+              <option>HIV / Reproductive Health</option>
+              <option>Pharmacy / Prescription Collection</option>
+              <option>Inpatient Admission</option>
+            </select>
+          </div>
+          <div class="f2">
+            <div class="fg"><label>Preferred Date</label><input type="date" id="a6"></div>
+            <div class="fg"><label>Preferred Time</label>
+              <select id="a7">
+                <option>Morning (8am – 12pm)</option>
+                <option>Afternoon (12pm – 5pm)</option>
+                <option>Evening (5pm – 9pm)</option>
+                <option>Night / No Preference</option>
+              </select>
+            </div>
+          </div>
+          <div class="fg"><label>Brief Description (optional)</label><textarea id="a8" placeholder="Describe your concern or reason for visit..."></textarea></div>
+          <button class="btn-form" onclick="doApt()">Submit Appointment Request</button>
+        </div>
+        <div class="form-right">
+          <div class="ri-label">Before You Visit</div>
+          <div class="ri-row"><div class="ri-l">Walk-ins Welcome</div><div class="ri-v">No reservation required at any time. We serve all patients who arrive, around the clock, every day.</div></div>
+          <div class="ri-row"><div class="ri-l">What to Bring</div><div class="ri-v">National ID or patient card. Previous medical records or prescriptions. NHIF or insurance card if applicable.</div></div>
+          <div class="ri-row"><div class="ri-l">Emergency Cases</div><div class="ri-v">Do not wait for an appointment. Go directly to our Emergency department or call us immediately.</div></div>
+          <div class="ri-row"><div class="ri-l">Phone</div><div class="ri-v" style="font-size:1.2rem; font-weight:700; color:white;">0700 130 023</div></div>
+          <div class="ri-row"><div class="ri-l">Alternate</div><div class="ri-v">0724 109 625</div></div>
+          <div class="ri-row" style="border:none;"><div class="ri-l">Email</div><div class="ri-v">kisimahealthcare@gmail.com</div></div>
+          <div class="open-pill">Always Open — No Exceptions</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════════════════════════════════
+     CONTACT
+══════════════════════════════════════════ -->
+<div class="page" id="page-contact">
+  <section class="sec">
+    <div class="wrap" style="padding:0;">
+      <div class="sec-tag">Get in Touch</div>
+      <h2 class="sec-h"><em>Contact</em> Us</h2>
+
+      <!-- CONTACT HERO STRIP -->
+      <div class="contact-hero">
+        <div class="ch-item">
+          <div class="ch-ico"><svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg></div>
+          <div class="ch-lbl">Phone</div>
+          <div class="ch-val big">0700 130 023</div>
+          <div class="ch-val" style="font-size:0.88rem; margin-top:4px;">0724 109 625</div>
+        </div>
+        <div class="ch-item">
+          <div class="ch-ico"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></div>
+          <div class="ch-lbl">Email</div>
+          <div class="ch-val" style="font-size:1rem; font-weight:500;">kisimahealthcare@gmail.com</div>
+        </div>
+        <div class="ch-item">
+          <div class="ch-ico"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>
+          <div class="ch-lbl">Location</div>
+          <div class="ch-val">Ongata Rongai<br>Kajiado County, Kenya</div>
+        </div>
+      </div>
+
+      <div class="form-shell" style="border-radius:18px;">
+        <div class="form-left">
+          <div style="font-family:'Cormorant Garamond',serif; font-size:1.5rem; font-weight:600; color:var(--blue-800); margin-bottom:28px;">Send Us a Message</div>
+          <div class="fg"><label>Full Name</label><input type="text" id="c1" placeholder="Your full name"></div>
+          <div class="fg"><label>Phone</label><input type="tel" id="c2" placeholder="07XX XXX XXX"></div>
+          <div class="fg"><label>Email</label><input type="email" id="c3" placeholder="your@email.com"></div>
+          <div class="fg"><label>Subject</label>
+            <select id="c4">
+              <option>General Inquiry</option>
+              <option>Appointment Query</option>
+              <option>Billing & Insurance</option>
+              <option>Feedback or Complaint</option>
+              <option>Partnership / Referral</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="fg"><label>Message</label><textarea id="c5" placeholder="Type your message here..." style="min-height:130px;"></textarea></div>
+          <button class="btn-form" onclick="doCt()">Send Message</button>
+        </div>
+        <div class="form-right">
+          <div class="ri-label">Contact Details</div>
+          <div class="ri-row"><div class="ri-l">Primary Phone</div><div class="ri-v" style="font-size:1.3rem; font-weight:700; color:white; letter-spacing:0.04em;">0700 130 023</div></div>
+          <div class="ri-row"><div class="ri-l">Alternate Phone</div><div class="ri-v" style="font-size:1.1rem; font-weight:600; color:white;">0724 109 625</div></div>
+          <div class="ri-row"><div class="ri-l">Email Address</div><div class="ri-v" style="color:var(--accent);">kisimahealthcare@gmail.com</div></div>
+          <div class="ri-row"><div class="ri-l">Address</div><div class="ri-v">Ongata Rongai<br>Kajiado County, Kenya</div></div>
+          <div class="ri-row"><div class="ri-l">Operating Hours</div><div class="ri-v">24 hours a day, every day of the year</div></div>
+          <div class="ri-row" style="border:none; padding-bottom:0;"><div class="ri-l">Emergency</div><div class="ri-v" style="font-size:1.4rem; font-weight:700; color:#f87171;">0700 130 023</div></div>
+          <div class="open-pill">Open Now &mdash; 24/7</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════════════════════════════════
+     EMERGENCY
+══════════════════════════════════════════ -->
+<div class="page" id="page-emergency">
+  <section class="sec">
+    <div class="wrap" style="padding:0;">
+      <div class="sec-tag">Emergency Services</div>
+      <div class="emg-banner g1">
+        <div class="emg-lbl">Emergency Hotline &mdash; Available 24 Hours, 365 Days</div>
+        <span class="emg-num">0700 130 023</span>
+        <div class="emg-lbl">Kisima Emergency Department &mdash; Ongata Rongai, Kajiado County</div>
+      </div>
+
+      <h2 class="sec-h" style="margin-bottom:10px;">In a Medical Emergency</h2>
+      <p class="sec-lead" style="margin-bottom:36px;">Proceed directly to Kisima. Our emergency team is on duty at all times. Triage begins the moment you arrive — no appointment, no delay.</p>
+
+      <div class="emg-steps" style="margin-bottom:52px;">
+        <div class="g1 emg-step"><div class="es-n">1</div><div class="es-t">Call Ahead</div><div class="es-d">Call 0700 130 023 to alert the emergency team before arrival if possible.</div></div>
+        <div class="g1 emg-step"><div class="es-n">2</div><div class="es-t">Come Directly</div><div class="es-d">Proceed to the Emergency entrance — Kisima, Ongata Rongai.</div></div>
+        <div class="g1 emg-step"><div class="es-n">3</div><div class="es-t">Immediate Triage</div><div class="es-d">A clinician will assess and prioritise your care on arrival.</div></div>
+        <div class="g1 emg-step"><div class="es-n">4</div><div class="es-t">Treat & Stabilise</div><div class="es-d">Treatment, admission, or referral is managed from the ER.</div></div>
+      </div>
+
+      <h2 class="sec-h" style="margin-bottom:28px;">Conditions <em>We Handle</em></h2>
+      <div class="emg-grid">
+        <div class="g1 emg-c"><h4>Trauma & Injuries</h4><p>Road traffic accidents, falls, lacerations, penetrating trauma, fractures, and crush injuries.</p></div>
+        <div class="g1 emg-c"><h4>Obstetric Emergencies</h4><p>Antepartum and postpartum haemorrhage, eclampsia, obstructed labour, and neonatal distress.</p></div>
+        <div class="g1 emg-c"><h4>Cardiac & Respiratory</h4><p>Chest pain, acute MI, severe asthma, respiratory failure, and cardiac arrhythmias.</p></div>
+        <div class="g1 emg-c"><h4>Acute Surgical Conditions</h4><p>Acute abdomen, suspected appendicitis, perforated viscus, and abscesses requiring drainage.</p></div>
+        <div class="g1 emg-c"><h4>Paediatric Emergencies</h4><p>Febrile convulsions, severe malaria, dehydration with shock, neonatal sepsis.</p></div>
+        <div class="g1 emg-c"><h4>Poisoning & Overdose</h4><p>Drug overdose, organophosphate poisoning, chemical ingestion, and toxic exposures.</p></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━
+   FOOTER
+━━━━━━━━━━━━━━━━━━━━━━ -->
+<footer>
+  <div class="ft-grid">
+    <div class="ft-brand">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div class="logo-hex" style="width:38px; height:38px;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:white;position:relative;z-index:1;"><path d="M11 2v9H2v2h9v9h2v-9h9v-2h-9V2z"/></svg></div>
+        <span style="font-family:'Cormorant Garamond',serif; color:white; font-size:1rem; font-weight:600;">Kisima Diagnostic & Treatment Centre</span>
+      </div>
+      <p>Level 3A primary health facility serving Ongata Rongai and Kajiado County. Open 24 hours, 365 days a year.</p>
+      <div style="margin-top:18px;">
+        <div style="font-size:0.8rem; color:var(--accent); font-weight:600;">0700 130 023 &nbsp;|&nbsp; 0724 109 625</div>
+        <div style="font-size:0.78rem; color:var(--muted-on-dark); margin-top:4px;">kisimahealthcare@gmail.com</div>
+      </div>
+    </div>
+    <div class="ft-col">
+      <h4>Services</h4>
+      <button onclick="go('services')">All Services</button>
+      <button onclick="go('surgical')">Surgical Theatre</button>
+      <button onclick="go('laboratory')">Laboratory</button>
+      <button onclick="go('pharmacy')">Pharmacy</button>
+      <button onclick="openD('mch')">MCH & Maternity</button>
+      <button onclick="openD('emergency')">Emergency</button>
+    </div>
+    <div class="ft-col">
+      <h4>Navigate</h4>
+      <button onclick="go('home')">Home</button>
+      <button onclick="go('about')">About</button>
+      <button onclick="go('appointment')">Appointments</button>
+      <button onclick="go('contact')">Contact</button>
+      <button onclick="go('emergency')" style="color:#f87171;">Emergency</button>
+    </div>
+    <div class="ft-col">
+      <h4>Contact</h4>
+      <a>Ongata Rongai, Kajiado</a>
+      <a style="color:var(--accent); font-weight:600;">0700 130 023</a>
+      <a style="color:var(--accent);">0724 109 625</a>
+      <a>kisimahealthcare@gmail.com</a>
+      <div style="margin-top:14px;">
+        <div class="open-pill" style="font-size:0.62rem; padding:7px 14px;">Open Now &mdash; 24/7/365</div>
+      </div>
+    </div>
+  </div>
+  <div class="ft-bottom">
+    <span>Kisima Diagnostic & Treatment Centre &mdash; Ongata Rongai, Kajiado County, Kenya</span>
+    <span class="ac">Level 3A &nbsp;|&nbsp; 24 Hours &nbsp;|&nbsp; 365 Days</span>
+  </div>
+</footer>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   JAVASCRIPT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<script>
+// PAGE NAV
+const NAV_MAP = {home:0,services:1,surgical:2,laboratory:3,pharmacy:4,about:5,appointment:6,contact:7};
+
+function go(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b => b.classList.remove('on'));
+  const pg = document.getElementById('page-'+id);
+  if (pg) pg.classList.add('on');
+  if (NAV_MAP[id] !== undefined) document.querySelectorAll('.nb')[NAV_MAP[id]].classList.add('on');
+  window.scrollTo({top:0, behavior:'smooth'});
+  document.getElementById('nav').classList.remove('open');
+  if (id === 'pharmacy') renderDrugs();
+}
+
+function toggleNav() {
+  document.getElementById('nav').classList.toggle('open');
+}
+
+// TOAST
+function toast(title, msg, err) {
+  const t = document.getElementById('toast');
+  t.style.borderLeftColor = err ? '#e54545' : 'var(--accent)';
+  document.getElementById('tT').textContent = title;
+  document.getElementById('tM').textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 4500);
+}
+
+// DRAWER
+const DD = {
+  phc: {
+    title:'Primary Health Care', sub:'General Outpatient Department',
+    html:`<div class="ds"><h4>Overview</h4><p>The PHC unit is the first point of contact for all patients. It handles a comprehensive range of common illnesses, preventive interventions, and health promotion activities for all age groups, 24 hours daily.</p></div>
+    <div class="ds"><h4>Services Provided</h4><ul class="dl">
+      <li>General medical consultations and clinical assessment</li>
+      <li>Diagnosis and treatment — malaria, URTI, diarrhoea, skin infections</li>
+      <li>Chronic disease management — hypertension, diabetes, asthma, epilepsy</li>
+      <li>Vital signs assessment, weight, and clinical documentation</li>
+      <li>Health education and patient counselling</li>
+      <li>Nutritional assessment and growth monitoring</li>
+      <li>Prescription and drug dispensing coordination</li>
+      <li>Referrals within the facility and to higher-level care</li>
+    </ul></div>
+    <div class="ds"><h4>Hours</h4><p>Available 24 hours a day, 365 days a year including all public holidays.</p></div>`
+  },
+  mch: {
+    title:'MCH & Maternity', sub:'Maternal & Child Health Services',
+    html:`<div class="ds"><h4>Overview</h4><p>The MCH unit provides comprehensive preventive and curative services aimed at improving maternal and child health outcomes throughout the community.</p></div>
+    <div class="ds"><h4>Services Provided</h4><ul class="dl">
+      <li>Antenatal care (ANC) — risk assessment and monitoring</li>
+      <li>Skilled birth attendance for normal deliveries</li>
+      <li>Postnatal care for mother and newborn</li>
+      <li>Neonatal resuscitation and immediate newborn care</li>
+      <li>Immunisation / EPI — BCG, OPV, DPT-HepB-Hib, PCV, Rotavirus, MR</li>
+      <li>Growth monitoring and nutrition counselling</li>
+      <li>Family planning — LARC insertion, pills, injectables, counselling</li>
+      <li>Prevention of Mother-to-Child Transmission (PMTCT)</li>
+      <li>Obstetric emergency first response and referral</li>
+    </ul></div>`
+  },
+  emergency: {
+    title:'Emergency & Casualty', sub:'24-Hour Emergency Department',
+    html:`<div class="ds"><h4>Overview</h4><p>Kisima's emergency unit is staffed and fully operational at all hours. Triage is performed immediately on arrival using a structured prioritisation system. No patient is turned away.</p></div>
+    <div class="ds"><h4>Capabilities</h4><ul class="dl">
+      <li>5-tier triage with immediate clinical assessment</li>
+      <li>Advanced airway management and ventilatory support</li>
+      <li>Cardiopulmonary resuscitation (CPR)</li>
+      <li>IV access, fluid resuscitation, blood transfusion</li>
+      <li>Trauma stabilisation and emergency wound management</li>
+      <li>Emergency medication administration (IV/IM)</li>
+      <li>Point-of-care testing — glucose, malaria RDT, troponin</li>
+      <li>Referral coordination with ambulance linkage</li>
+      <li>Obstetric and paediatric emergency response</li>
+    </ul></div>
+    <div class="ds"><h4>Emergency Line</h4><p style="font-size:1.6rem; font-weight:700; color:#f87171;">0700 130 023</p></div>`
+  },
+  inpatient: {
+    title:'Inpatient Ward', sub:'Admitted Patient Care',
+    html:`<div class="ds"><h4>Overview</h4><p>The inpatient ward provides supervised care for patients requiring observation, treatment, or post-operative monitoring that cannot be safely managed as outpatients.</p></div>
+    <div class="ds"><h4>Services</h4><ul class="dl">
+      <li>General medical and surgical wards</li>
+      <li>Paediatric bay for admitted children</li>
+      <li>Maternity postnatal ward</li>
+      <li>24-hour nursing care and vital signs monitoring</li>
+      <li>Daily physician ward rounds and clinical documentation</li>
+      <li>IV fluid and medication administration</li>
+      <li>Nutritional support and meal provision</li>
+      <li>Discharge planning and follow-up scheduling</li>
+    </ul></div>`
+  },
+  ent: {
+    title:'ENT Clinic', sub:'Ear, Nose & Throat Services',
+    html:`<div class="ds"><h4>Overview</h4><p>The ENT clinic handles a full range of common and acute ear, nose, and throat conditions with targeted clinical procedures.</p></div>
+    <div class="ds"><h4>Procedures & Services</h4><ul class="dl">
+      <li>Comprehensive ENT assessment and clinical examination</li>
+      <li>Ear syringing and cerumen (wax) removal</li>
+      <li>Foreign body removal from ear, nose, or throat</li>
+      <li>Nasal packing for epistaxis (nosebleeds)</li>
+      <li>Hearing assessment and audiological referral</li>
+      <li>Management of otitis media, sinusitis, and tonsillitis</li>
+      <li>Tonsil, adenoid, and laryngeal assessment</li>
+      <li>Post-nasal drip and chronic rhinitis management</li>
+    </ul></div>`
+  },
+  dental: {
+    title:'Dental Services', sub:'Oral Health & Dental Care Unit',
+    html:`<div class="ds"><h4>Overview</h4><p>Kisima's dental unit offers both preventive and restorative oral healthcare delivered by qualified dental professionals in a dedicated oral health unit.</p></div>
+    <div class="ds"><h4>Procedures & Services</h4><ul class="dl">
+      <li>Full oral examination and dental charting</li>
+      <li>Simple and surgical tooth extractions</li>
+      <li>Dental fillings and composite restorations</li>
+      <li>Scaling, root planing, and teeth polishing</li>
+      <li>Dental abscess incision, drainage, and antibiotic therapy</li>
+      <li>Fluoride application and preventive sealants</li>
+      <li>Oral health education and hygiene instruction</li>
+      <li>Orthodontic assessment and referral</li>
+    </ul></div>`
+  },
+  dressing: {
+    title:'Dressing & Wound Care', sub:'Sterile Wound Management Clinic',
+    html:`<div class="ds"><h4>Overview</h4><p>The dressing clinic provides professional wound care for patients with acute injuries, chronic ulcers, post-surgical wounds, and burns. All procedures use strict sterile technique.</p></div>
+    <div class="ds"><h4>Services</h4><ul class="dl">
+      <li>Daily and periodic wound dressing changes</li>
+      <li>Diabetic foot ulcer assessment and management</li>
+      <li>Pressure ulcer staging and treatment</li>
+      <li>Burn wound management (superficial to moderate depth)</li>
+      <li>Post-surgical wound care and monitoring</li>
+      <li>Suture and staple removal</li>
+      <li>Wound irrigation, debridement, and packing</li>
+      <li>Wound photography and clinical documentation</li>
+      <li>Referral for complex or non-healing wounds</li>
+    </ul></div>`
+  },
+  hiv: {
+    title:'HIV & Reproductive Health', sub:'Comprehensive HIV & Reproductive Services',
+    html:`<div class="ds"><h4>Overview</h4><p>Kisima provides a full package of HIV and reproductive health services in an integrated, confidential clinical setting.</p></div>
+    <div class="ds"><h4>Services</h4><ul class="dl">
+      <li>HIV Testing and Counselling (HTC) — rapid testing with same-day results</li>
+      <li>PMTCT — Prevention of Mother-to-Child Transmission</li>
+      <li>Antiretroviral Therapy (ART) initiation and adherence support</li>
+      <li>CD4 count monitoring for HIV-positive patients</li>
+      <li>Sexually Transmitted Infection (STI) syndromic management</li>
+      <li>Cervical cancer screening — VIA and Pap smear</li>
+      <li>Family planning including emergency contraception</li>
+      <li>Post-Exposure Prophylaxis (PEP)</li>
+      <li>Pre-Exposure Prophylaxis (PrEP) counselling and initiation</li>
+    </ul></div>`
+  }
+};
+
+function openD(key) {
+  const d = DD[key];
+  if (!d) return;
+  document.getElementById('dTitle').textContent = d.title;
+  document.getElementById('dSub').textContent = d.sub;
+  document.getElementById('dBody').innerHTML = d.html;
+  document.getElementById('ov').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeOv(e) { if (e.target === document.getElementById('ov')) closeDr(); }
+function closeDr() {
+  document.getElementById('ov').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// FORMS
+function doApt() {
+  const n = document.getElementById('a1').value.trim();
+  const p = document.getElementById('a3').value.trim();
+  const s = document.getElementById('a5').value;
+  if (!n || !p || !s) { toast('Missing Information','Please fill in your name, phone, and preferred service.', true); return; }
+  toast('Appointment Requested','Thank you, '+n+'. We will confirm your appointment shortly.');
+  ['a1','a2','a3','a4','a8'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('a5').value='';
+}
+
+function doCt() {
+  const n = document.getElementById('c1').value.trim();
+  const m = document.getElementById('c5').value.trim();
+  if (!n || !m) { toast('Missing Information','Please enter your name and message.', true); return; }
+  toast('Message Sent','Thank you, '+n+'. We will respond as soon as possible.');
+  ['c1','c2','c3','c5'].forEach(id=>document.getElementById(id).value='');
+}
+
+// PHARMACY
+const DRUGS = [
+  {n:'Amoxicillin 500mg',cat:'Antibiotic',form:'Capsules',route:'Oral',s:'i'},
+  {n:'Amoxicillin/Clavulanate 625mg',cat:'Antibiotic',form:'Tablets',route:'Oral',s:'i'},
+  {n:'Azithromycin 500mg',cat:'Antibiotic',form:'Tablets',route:'Oral',s:'i'},
+  {n:'Ciprofloxacin 500mg',cat:'Antibiotic',form:'Tablets',route:'Oral',s:'i'},
+  {n:'Doxycycline 100mg',cat:'Antibiotic',form:'Capsules',route:'Oral',s:'i'},
+  {n:'Metronidazole 400mg',cat:'Antibiotic',form:'Tablets',route:'Oral',s:'i'},
+  {n:'Cotrimoxazole 480mg',cat:'Antibiotic',form:'Tablets',route:'Oral',s:'i'},
+  {n:'Erythromycin 250mg',cat:'Antibiotic',form:'Tablets',route:'Oral',s:'i'},
+  {n:'Clindamycin 300mg',cat:'Antibiotic',form:'Capsules',route:'Oral',s:'i'},
+  {n:'Gentamicin 80mg/2ml',cat:'Antibiotic',form:'Injection',route:'IM/IV',s:'r'},
+  {n:'Ceftriaxone 1g',cat:'Antibiotic',form:'Injection',route:'IV/IM',s:'r'},
+  {n:'Benzyl Penicillin 5MU',cat:'Antibiotic',form:'Injection',route:'IV',s:'r'},
+  {n:'Artemether-Lumefantrine (AL)',cat:'Antimalarial',form:'Tablets',route:'Oral',s:'i'},
+  {n:'Quinine 300mg',cat:'Antimalarial',form:'Tablets',route:'Oral',s:'r'},
+  {n:'Quinine Dihydrochloride IV',cat:'Antimalarial',form:'Injection',route:'IV infusion',s:'r'},
+  {n:'Chloroquine 150mg',cat:'Antimalarial',form:'Tablets',route:'Oral',s:'l'},
+  {n:'Paracetamol 500mg',cat:'Analgesic',form:'Tablets',route:'Oral',s:'i'},
+  {n:'Paracetamol Syrup 120mg/5ml',cat:'Analgesic',form:'Syrup',route:'Oral',s:'i'},
+  {n:'Paracetamol IV 1g/100ml',cat:'Analgesic',form:'Infusion',route:'IV',s:'r'},
+  {n:'Ibuprofen 400mg',cat:'Analgesic',form:'Tablets',route:'Oral',s:'i'},
+  {n:'Diclofenac 75mg/3ml',cat:'Analgesic',form:'Injection',route:'IM',s:'r'},
+  {n:'Tramadol 50mg',cat:'Analgesic',form:'Capsules',route:'Oral',s:'r'},
+  {n:'Morphine Sulphate 10mg/ml',cat:'Analgesic',form:'Injection',route:'IV/IM',s:'r'},
+  {n:'Pethidine 100mg/2ml',cat:'Analgesic',form:'Injection',route:'IM',s:'r'},
+  {n:'Normal Saline 0.9% 500ml',cat:'IV',form:'Infusion',route:'IV',s:'i'},
+  {n:'Normal Saline 0.9% 1000ml',cat:'IV',form:'Infusion',route:'IV',s:'i'},
+  {n:'Ringer\'s Lactate 500ml',cat:'IV',form:'Infusion',route:'IV',s:'i'},
+  {n:'Dextrose 5% 500ml',cat:'IV',form:'Infusion',route:'IV',s:'i'},
+  {n:'Dextrose 50% 50ml',cat:'IV',form:'Injection',route:'IV',s:'i'},
+  {n:'Dextrose-Saline 1000ml',cat:'IV',form:'Infusion',route:'IV',s:'i'},
+  {n:'Omeprazole 20mg',cat:'GI',form:'Capsules',route:'Oral',s:'i'},
+  {n:'Omeprazole 40mg IV',cat:'GI',form:'Injection',route:'IV',s:'r'},
+  {n:'Ranitidine 150mg',cat:'GI',form:'Tablets',route:'Oral',s:'i'},
+  {n:'ORS Sachets',cat:'GI',form:'Sachets',route:'Oral',s:'i'},
+  {n:'Metoclopramide 10mg',cat:'GI',form:'Tablets/Inj',route:'Oral/IV',s:'i'},
+  {n:'Atenolol 50mg',cat:'Cardiovascular',form:'Tablets',route:'Oral',s:'i'},
+  {n:'Amlodipine 5mg',cat:'Cardiovascular',form:'Tablets',route:'Oral',s:'i'},
+  {n:'Enalapril 5mg',cat:'Cardiovascular',form:'Tablets',route:'Oral',s:'i'},
+  {n:'Furosemide 40mg',cat:'Cardiovascular',form:'Tablets',route:'Oral',s:'i'},
+  {n:'Furosemide 20mg/2ml',cat:'Cardiovascular',form:'Injection',route:'IV/IM',s:'r'},
+  {n:'Digoxin 0.25mg',cat:'Cardiovascular',form:'Tablets',route:'Oral',s:'r'},
+  {n:'Metformin 500mg',cat:'Antidiabetic',form:'Tablets',route:'Oral',s:'i'},
+  {n:'Glibenclamide 5mg',cat:'Antidiabetic',form:'Tablets',route:'Oral',s:'i'},
+  {n:'Insulin Regular 100IU/ml',cat:'Antidiabetic',form:'Injection',route:'SC/IV',s:'r'},
+  {n:'Insulin Isophane (NPH)',cat:'Antidiabetic',form:'Injection',route:'SC',s:'r'},
+  {n:'Salbutamol Inhaler 100mcg',cat:'Respiratory',form:'MDI Inhaler',route:'Inhalation',s:'i'},
+  {n:'Salbutamol Nebules 5mg/ml',cat:'Respiratory',form:'Nebulisation',route:'Inhaled',s:'r'},
+  {n:'Prednisolone 5mg',cat:'Corticosteroid',form:'Tablets',route:'Oral',s:'i'},
+  {n:'Hydrocortisone 100mg',cat:'Corticosteroid',form:'Injection',route:'IV/IM',s:'r'},
+  {n:'Dexamethasone 4mg/ml',cat:'Corticosteroid',form:'Injection',route:'IV/IM',s:'r'},
+  {n:'Oxytocin 10IU/ml',cat:'Oxytocic',form:'Injection',route:'IM/IV',s:'r'},
+  {n:'Ergometrine 0.5mg',cat:'Oxytocic',form:'Injection',route:'IM',s:'r'},
+  {n:'Misoprostol 200mcg',cat:'Oxytocic',form:'Tablets',route:'Sublingual/Rectal',s:'r'},
+  {n:'Magnesium Sulphate 50%',cat:'Anticonvulsant',form:'Injection',route:'IV/IM',s:'r'},
+  {n:'Diazepam 10mg/2ml',cat:'Anticonvulsant',form:'Injection',route:'IV/Rectal',s:'r'},
+  {n:'Phenobarbital 30mg',cat:'Anticonvulsant',form:'Tablets',route:'Oral',s:'r'},
+  {n:'Fluconazole 150mg',cat:'Antifungal',form:'Capsules',route:'Oral',s:'i'},
+  {n:'Clotrimazole 1% Cream',cat:'Antifungal',form:'Cream',route:'Topical',s:'i'},
+  {n:'Ferrous Sulphate 200mg',cat:'Supplement',form:'Tablets',route:'Oral',s:'i'},
+  {n:'Folic Acid 5mg',cat:'Supplement',form:'Tablets',route:'Oral',s:'i'},
+  {n:'Vitamin A 200,000IU',cat:'Supplement',form:'Capsules',route:'Oral',s:'i'},
+  {n:'Zinc Sulphate 20mg',cat:'Supplement',form:'Tablets',route:'Oral',s:'i'},
+  {n:'Albendazole 400mg',cat:'Anthelmintic',form:'Tablets',route:'Oral',s:'i'},
+  {n:'Mebendazole 100mg',cat:'Anthelmintic',form:'Tablets',route:'Oral',s:'i'},
+  {n:'Cetirizine 10mg',cat:'Antihistamine',form:'Tablets',route:'Oral',s:'i'},
+  {n:'Epinephrine 1mg/ml',cat:'Emergency',form:'Injection',route:'IV/IM',s:'r'},
+  {n:'Atropine 0.6mg/ml',cat:'Emergency',form:'Injection',route:'IV/IM',s:'r'},
+  {n:'Lidocaine 2% 20ml',cat:'Anaesthetic',form:'Injection',route:'Local',s:'r'},
+  {n:'Ketamine 500mg/10ml',cat:'Anaesthetic',form:'Injection',route:'IV/IM',s:'r'},
+  {n:'Povidone Iodine 10%',cat:'Antiseptic',form:'Solution',route:'Topical',s:'i'},
+  {n:'Chlorhexidine 4%',cat:'Antiseptic',form:'Solution',route:'Topical',s:'i'},
+  {n:'Chloramphenicol Eye Drops',cat:'Ophthalmic',form:'Drops',route:'Ocular',s:'i'},
+  {n:'ARVs — TLD (TDF/3TC/DTG)',cat:'ARV',form:'Tablets',route:'Oral',s:'r'},
+  {n:'Cotrimoxazole Prophylaxis 960mg',cat:'ARV',form:'Tablets',route:'Oral',s:'r'},
+];
+
+let curCat='all', curQ='';
+
+function renderDrugs() {
+  const body = document.getElementById('dtbody');
+  if (!body) return;
+  const data = DRUGS.filter(d=>{
+    const cm = curCat==='all' || d.cat.includes(curCat);
+    const qm = !curQ || d.n.toLowerCase().includes(curQ) || d.cat.toLowerCase().includes(curQ) || d.form.toLowerCase().includes(curQ);
+    return cm && qm;
+  });
+  if (!data.length) { body.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:28px;color:var(--muted-on-light);">No matching medications found.</td></tr>`; return; }
+  body.innerHTML = data.map(d=>{
+    const cls = d.s==='i'?'pi':d.s==='r'?'pr':'pl';
+    const lbl = d.s==='i'?'In Stock':d.s==='r'?'Rx Only':'Limited';
+    return `<tr><td><strong>${d.n}</strong></td><td>${d.cat}</td><td>${d.form}</td><td>${d.route}</td><td><span class="pill ${cls}">${lbl}</span></td></tr>`;
+  }).join('');
+}
+
+function fcat(cat, btn) {
+  curCat = cat;
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renderDrugs();
+}
+
+function sdrug(v) { curQ = v.toLowerCase(); renderDrugs(); }
+
+// INIT
+document.addEventListener('DOMContentLoaded', () => {
+  const d = document.getElementById('a6');
+  if (d) { const t=new Date().toISOString().split('T')[0]; d.min=t; d.value=t; }
+});
+renderDrugs();
+</script>
+</body>
+</html>
